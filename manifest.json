@@ -1,0 +1,29 @@
+{
+  "name": "Meri Dukaan - मेरी दुकान",
+  "short_name": "Meri Dukaan",
+  "description": "कम टैप्स। सही स्टॉक। ज़्यादा मुनाफ़ा। Offline-first stock & reorder assistant for retail shops.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0d5c3a",
+  "theme_color": "#0d5c3a",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": ["business", "finance", "shopping", "utilities"]
+}
