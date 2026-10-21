@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>मेरी दुकान - Meri Dukaan | Offline Stock & Reorder Assistant</title>
+  
+  <meta name="description" content="Kam Taps. Sahi Stock. Zyada Munafa. Offline-first inventory assistant for Kirana and neighbourhood retail shops.">
+  <meta name="theme-color" content="#0d5c3a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Meri Dukaan">
+  
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="icons/favicon.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-container" id="app">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand-wrapper">
+        <div class="brand-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" fill="#0d5c3a"/>
+            <polyline points="9 22 9 12 15 12 15 22" fill="#e67e22"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title" id="txt-app-title">मेरी दुकान <span style="font-size:0.8rem; font-weight:400; opacity:0.9;">(Meri Dukaan)</span></h1>
+          <div class="brand-tagline" id="txt-app-tagline">कम टैप्स। सही स्टॉक। ज़्यादा मुनाफ़ा।</div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Online/Offline Pill -->
+        <div class="offline-pill online" id="status-pill" title="Network Status">
+          <span class="status-dot"></span>
+          <span id="status-text">ऑनलाइन</span>
+        </div>
+
+        <!-- Desktop Wide Toggle -->
+        <button class="header-btn" id="btn-toggle-frame" title="Toggle Phone / Wide View">
+          <span id="frame-icon">📱</span>
+        </button>
+
+        <!-- Language Switcher -->
+        <button class="header-btn" id="btn-lang-toggle" title="Switch Language">
+          <span id="lang-label">हिन्दी</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      
+      <!-- VIEW 1: ALL STOCK -->
+      <section class="view-section active" id="view-stock">
+        <div class="section-head">
+          <h2 class="section-title">
+            <span>📦</span> <span>सारा सामान (All Stock)</span>
+          </h2>
+          <span class="section-count" id="count-all-stock">0 सामान</span>
+        </div>
+
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" class="search-input" id="search-stock" placeholder="सामान का नाम खोजें (Search product)..." autocomplete="off">
+          <button class="search-clear" id="clear-stock-search">✕</button>
+        </div>
+
+        <div id="list-all-stock"></div>
+
+        <div class="empty-state" id="empty-all-stock" style="display:none;">
+          <div class="empty-state-icon">🏪</div>
+          <div class="empty-state-title">दुकान में अभी कोई सामान नहीं है</div>
+          <div class="empty-state-sub">नीचे दिए बटन से नया सामान जोड़ें या सेटिंग्स से डेमो डेटा लोड करें।</div>
+          <button class="btn btn-accent btn-sm" id="btn-empty-load-demo">⚡ लोड डेमो डेटा (Load Demo Data)</button>
+        </div>
+      </section>
+
+      <!-- VIEW 2: QUICK SALE -->
+      <section class="view-section" id="view-quick-sale">
+        <div class="section-head">
+          <h2 class="section-title">
+            <span>⚡</span> <span>तुरंत बिक्री (Quick Sale)</span>
+          </h2>
+          <span class="section-count" id="count-sale-items">0 आइटम</span>
+        </div>
+
+        <div class="info-banner">
+          <div>👉 <strong>2-टैप बिक्री:</strong> सामान पर टैप करके तुरंत 1 बिक्री दर्ज करें।</div>
+        </div>
+
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" class="search-input" id="search-sale" placeholder="बिक्री के लिए सामान खोजें..." autocomplete="off">
+          <button class="search-clear" id="clear-sale-search">✕</button>
+        </div>
+
+        <div id="list-quick-sale"></div>
+
+        <div class="empty-state" id="empty-quick-sale" style="display:none;">
+          <div class="empty-state-icon">🛒</div>
+          <div class="empty-state-title">कोई सामान उपलब्ध नहीं है</div>
+        </div>
+      </section>
+
+      <!-- VIEW 3: LOW STOCK -->
+      <section class="view-section" id="view-low-stock">
+        <div class="section-head">
+          <h2 class="section-title">
+            <span>⚠️</span> <span>कम स्टॉक (Low Stock)</span>
+          </h2>
+          <span class="section-count" id="count-low-stock">0 सामान</span>
+        </div>
+
+        <div class="info-banner" style="background:#fee2e2; border-color:#fecaca; color:#991b1b;">
+          <div>🚨 यह सामान न्यूनतम सीमा से कम है। तुरंत नया ऑर्डर दें।</div>
+          <button class="btn btn-sm btn-accent" id="btn-share-order-top" style="white-space:nowrap;">
+            📲 ऑर्डर भेजें
+          </button>
+        </div>
+
+        <div id="list-low-stock"></div>
+
+        <div class="empty-state" id="empty-low-stock" style="display:none;">
+          <div class="empty-state-icon">✅</div>
+          <div class="empty-state-title" style="color:#166534;">सब ठीक है! कोई सामान कम नहीं है</div>
+          <div class="empty-state-sub">आपकी दुकान में सभी जरूरी सामान का पर्याप्त स्टॉक है।</div>
+        </div>
+      </section>
+
+      <!-- VIEW 4: NOT MOVING -->
+      <section class="view-section" id="view-not-moving">
+        <div class="section-head">
+          <h2 class="section-title">
+            <span>⏳</span> <span>रुका हुआ माल (Not Moving)</span>
+          </h2>
+          <span class="section-count" id="count-not-moving">0 सामान</span>
+        </div>
+
+        <div class="capital-banner" id="capital-summary-card">
+          <div style="font-weight:600; font-size:0.85rem; color:#78350f;">
+            💰 रुके माल में फंसी पूंजी (Tied-up Capital):
+          </div>
+          <div class="capital-amount" id="txt-capital-amount">₹0</div>
+          <div class="capital-sub" id="txt-capital-sub">0 सामान में (पिछले 30 दिनों में कोई बिक्री नहीं)</div>
+        </div>
+
+        <div id="list-not-moving"></div>
+
+        <div class="empty-state" id="empty-not-moving" style="display:none;">
+          <div class="empty-state-icon">🎉</div>
+          <div class="empty-state-title" style="color:#166534;">कोई मरा हुआ माल (Dead Stock) नहीं है!</div>
+          <div class="empty-state-sub">दुकान का सारा सामान नियमित रूप से बिक रहा है।</div>
+        </div>
+      </section>
+
+      <!-- VIEW 5: SETTINGS & BACKUP -->
+      <section class="view-section" id="view-settings">
+        <div class="section-head">
+          <h2 class="section-title">
+            <span>⚙️</span> <span>सेटिंग्स और बैकअप (Settings)</span>
+          </h2>
+        </div>
+
+        <!-- Demo Data Card -->
+        <div class="setting-card" style="border: 2px solid var(--accent); background: #fffcf8;">
+          <div class="setting-title" style="color:var(--accent);">⚡ 60-सेकंड जज डेमो (Demo Mode)</div>
+          <div class="setting-desc">
+            15 किराना सामान (कम स्टॉक और 30+ दिन पुराना रुका माल) तुरंत लोड करें।
+          </div>
+          <button class="btn btn-accent btn-block" id="btn-load-demo">
+            ⚡ डेमो डेटा लोड करें (Load Demo Data)
+          </button>
+        </div>
+
+        <!-- Inactivity Period Setting -->
+        <div class="setting-card">
+          <div class="setting-title">⏳ रुके माल की अवधि (Inactivity Period)</div>
+          <div class="setting-desc">
+            कितने दिन तक न बिकने पर सामान को रुका हुआ माल माना जाए:
+          </div>
+          <div style="display:flex; gap:8px; margin-top:8px;">
+            <select class="form-select" id="select-inactivity-days">
+              <option value="1">1 दिन (Demo Fast Track)</option>
+              <option value="7">7 दिन (1 हफ्ता)</option>
+              <option value="15">15 दिन (2 हफ्ते)</option>
+              <option value="30" selected>30 दिन (1 महीना - डिफ़ॉल्ट)</option>
+              <option value="60">60 दिन (2 महीने)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Recent Activity / Undo Ledger -->
+        <div class="setting-card">
+          <div class="setting-title">📜 हालिया लेन-देन (Recent Activity & Undo)</div>
+          <div class="setting-desc">हालिया बिक्री, माल आगमन और स्टॉक सुधार का पूरा विवरण:</div>
+          <div id="list-recent-activity" style="max-height: 220px; overflow-y:auto;"></div>
+        </div>
+
+        <!-- Backup & Restore -->
+        <div class="setting-card">
+          <div class="setting-title">💾 डेटा बैकअप और सुरक्षा (Backup & Restore)</div>
+          <div class="setting-desc">
+            फोन बदलने या डेटा साफ होने से बचने के लिए एक-टैप JSON बैकअप डाउनलोड करें।
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-primary btn-sm btn-block" id="btn-export-backup">
+              📥 बैकअप डाउनलोड (Export)
+            </button>
+            <button class="btn btn-outline btn-sm btn-block" id="btn-import-trigger">
+              📤 बैकअप लोड (Restore)
+            </button>
+            <input type="file" id="file-import-backup" accept=".json" style="display:none;">
+          </div>
+        </div>
+
+        <!-- Storage & System Info -->
+        <div class="setting-card">
+          <div class="setting-title">🛡️ ऑफलाइन सुरक्षा स्थिति (Offline Storage)</div>
+          <div style="font-size:0.85rem; color:var(--text-secondary);" id="storage-status-info">
+            स्थानीय IndexedDB सक्रिय है। सारा डेटा फोन के अंदर सुरक्षित है।
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Floating Action Button -->
+    <button class="fab-add" id="fab-add-product" title="Add New Product">
+      <span style="font-size:1.3rem; line-height:1;">+</span>
+      <span>सामान जोड़ें</span>
+    </button>
+
+    <!-- Persistent Undo Toast Banner -->
+    <div class="undo-toast" id="undo-toast">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span>✅</span>
+        <span id="undo-toast-text" style="font-size:0.85rem;">बिक्री दर्ज हुई!</span>
+      </div>
+      <button class="undo-toast-btn" id="btn-toast-undo">
+        ↩️ पिछली बिक्री वापस करें
+      </button>
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="bottom-nav">
+      <button class="nav-tab active" data-view="view-stock">
+        <span class="tab-icon">📦</span>
+        <span>सामान</span>
+      </button>
+      <button class="nav-tab" data-view="view-quick-sale">
+        <span class="tab-icon">⚡</span>
+        <span>तुरंत बिक्री</span>
+      </button>
+      <button class="nav-tab" data-view="view-low-stock">
+        <span class="tab-icon">⚠️</span>
+        <span>कम स्टॉक</span>
+        <span class="badge-counter" id="badge-low-stock" style="display:none;">0</span>
+      </button>
+      <button class="nav-tab" data-view="view-not-moving">
+        <span class="tab-icon">⏳</span>
+        <span>रुका माल</span>
+      </button>
+      <button class="nav-tab" data-view="view-settings">
+        <span class="tab-icon">⚙️</span>
+        <span>सेटिंग्स</span>
+      </button>
+    </nav>
+
+    <!-- MODAL 1: ADD PRODUCT -->
+    <div class="modal-overlay" id="modal-add-product">
+      <div class="modal-sheet">
+        <div class="modal-header">
+          <h3 class="modal-title">➕ नया सामान जोड़ें (Add Stock)</h3>
+          <button class="modal-close" data-close-modal="modal-add-product">✕</button>
+        </div>
+
+        <form id="form-add-product" autocomplete="off">
+          <div class="form-group">
+            <label class="form-label">सामान का नाम (Product Name) *</label>
+            <input type="text" class="form-input" id="inp-add-name" placeholder="उदा. टाटा नमक 1kg या फॉर्च्यून तेल 1L" required>
+          </div>
+
+          <div style="display:flex; gap:10px;">
+            <div class="form-group" style="flex:1;">
+              <label class="form-label">शुरुआती मात्रा (Quantity) *</label>
+              <input type="number" step="any" min="0" class="form-input" id="inp-add-qty" placeholder="उदा. 10 या 0.5" required>
+            </div>
+
+            <div class="form-group" style="flex:1;">
+              <label class="form-label">न्यूनतम सीमा (Min Stock) *</label>
+              <input type="number" step="any" min="0" class="form-input" id="inp-add-min" placeholder="उदा. 5" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">इकाई (Unit) *</label>
+            <div class="unit-pills" id="unit-pills-add">
+              <span class="unit-pill active" data-unit="pkt">पैकेट (pkt)</span>
+              <span class="unit-pill" data-unit="kg">किलो (kg)</span>
+              <span class="unit-pill" data-unit="L">लीटर (L)</span>
+              <span class="unit-pill" data-unit="pc">नग/पीस (pc)</span>
+              <span class="unit-pill" data-unit="box">डिब्बा (box)</span>
+              <span class="unit-pill" data-unit="g">ग्राम (g)</span>
+            </div>
+            <input type="hidden" id="inp-add-unit" value="pkt">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">खरीद भाव ₹ (Cost Price - ऐच्छिक / Optional)</label>
+            <input type="number" step="any" min="0" class="form-input" id="inp-add-cost" placeholder="उदा. 24 (फंसी पूंजी गणना के लिए)">
+          </div>
+
+          <div style="margin-top:20px; display:flex; gap:10px;">
+            <button type="button" class="btn btn-outline" style="flex:1;" data-close-modal="modal-add-product">रद्द करें</button>
+            <button type="submit" class="btn btn-primary" style="flex:2;" id="btn-submit-add">✅ सामान सहेजें (Save)</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL 2: RESTOCK -->
+    <div class="modal-overlay" id="modal-restock">
+      <div class="modal-sheet">
+        <div class="modal-header">
+          <h3 class="modal-title">📥 माल आया (Stock Received)</h3>
+          <button class="modal-close" data-close-modal="modal-restock">✕</button>
+        </div>
+
+        <form id="form-restock">
+          <input type="hidden" id="restock-prod-id">
+          
+          <div style="margin-bottom:12px; background:var(--surface-subtle); padding:10px; border-radius:var(--radius-md); border:1px solid var(--border);">
+            <div id="restock-prod-name" style="font-weight:700; font-size:1rem;">-</div>
+            <div style="font-size:0.85rem; color:var(--text-secondary); margin-top:4px;">
+              वर्तमान स्टॉक: <span id="restock-current-qty" style="font-weight:700; color:var(--primary);">-</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">नया माल कितना आया? (Quantity Received) *</label>
+            <div class="stepper-control">
+              <button type="button" class="stepper-btn" id="btn-restock-minus">-</button>
+              <input type="number" step="any" min="0.1" class="form-input stepper-input" id="inp-restock-qty" value="5" required>
+              <button type="button" class="stepper-btn" id="btn-restock-plus">+</button>
+            </div>
+          </div>
+
+          <div style="margin-top:20px; display:flex; gap:10px;">
+            <button type="button" class="btn btn-outline" style="flex:1;" data-close-modal="modal-restock">रद्द करें</button>
+            <button type="submit" class="btn btn-primary" style="flex:2;" id="btn-submit-restock">📥 स्टॉक जोड़ें (Save)</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL 3: CORRECT STOCK -->
+    <div class="modal-overlay" id="modal-correct">
+      <div class="modal-sheet">
+        <div class="modal-header">
+          <h3 class="modal-title">✏️ स्टॉक सुधारें (Correct Stock)</h3>
+          <button class="modal-close" data-close-modal="modal-correct">✕</button>
+        </div>
+
+        <form id="form-correct">
+          <input type="hidden" id="correct-prod-id">
+          
+          <div style="margin-bottom:12px; background:var(--surface-subtle); padding:10px; border-radius:var(--radius-md); border:1px solid var(--border);">
+            <div id="correct-prod-name" style="font-weight:700; font-size:1rem;">-</div>
+            <div style="font-size:0.85rem; color:var(--text-secondary); margin-top:4px;">
+              सिस्टम में दर्ज स्टॉक: <span id="correct-current-qty" style="font-weight:700;">-</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">दुकान में वास्तविक स्टॉक कितना है? (Actual Stock) *</label>
+            <input type="number" step="any" min="0" class="form-input" id="inp-correct-actual-qty" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">सुधार का कारण (Reason)</label>
+            <select class="form-select" id="select-correct-reason">
+              <option value="गिनती में भूल (Physical Recount)">गिनती में भूल (Physical Recount)</option>
+              <option value="खराब या टूटा हुआ (Damaged/Expired)">खराब या टूटा हुआ (Damaged)</option>
+              <option value="अन्य समायोजन (Adjustment)">अन्य समायोजन (Other)</option>
+            </select>
+          </div>
+
+          <div style="margin-top:20px; display:flex; gap:10px;">
+            <button type="button" class="btn btn-outline" style="flex:1;" data-close-modal="modal-correct">रद्द करें</button>
+            <button type="submit" class="btn btn-primary" style="flex:2;" id="btn-submit-correct">💾 सुधार सहेजें (Update)</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL 4: SHARE REORDER LIST -->
+    <div class="modal-overlay" id="modal-share">
+      <div class="modal-sheet">
+        <div class="modal-header">
+          <h3 class="modal-title">📲 डीलर को ऑर्डर सूची भेजें</h3>
+          <button class="modal-close" data-close-modal="modal-share">✕</button>
+        </div>
+
+        <div style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:10px;">
+          यह सूची कम स्टॉक के आधार पर तैयार की गई है:
+        </div>
+
+        <textarea id="txt-share-order-content" rows="9" class="form-input" style="font-family:monospace; font-size:0.85rem; line-height:1.4;" readonly></textarea>
+
+        <div style="margin-top:16px; display:flex; flex-direction:column; gap:8px;">
+          <button class="btn btn-accent btn-block" id="btn-send-whatsapp">
+            <span style="font-size:1.1rem;">💬</span> WhatsApp पर भेजें
+          </button>
+          <button class="btn btn-outline btn-block" id="btn-copy-order-text">
+            📋 कॉपी करें (Copy to Clipboard)
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Scripts -->
+  <script type="module" src="app.js"></script>
+</body>
+</html>
